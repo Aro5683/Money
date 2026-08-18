@@ -1,18 +1,14 @@
 {
   "short_name": "Ledger",
   "name": "Personal & Family Ledger",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
+ "icons": [
+  {
+    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%232563eb'><rect width='512' height='512' rx='100' fill='%232563eb'/><path d='M384 160H128c-17.7 0-32 14.3-32 32v192c0 17.7 14.3 32 32 32h256c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32zm-32 160c-13.3 0-24-10.7-24-24s10.7-24 24-24 24 10.7 24 24-10.7 24-24 24z' fill='white'/></svg>",
+    "sizes": "192x192 512x512",
+    "type": "image/svg+xml",
+    "purpose": "any maskable"
+  }
+],
   "start_url": "./index.html",
   "background_color": "#f8fafc",
   "theme_color": "#2563eb",
