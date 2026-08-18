@@ -4,91 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Money Report</title>
-  <!-- PWA Manifest & Theme Color -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Money Report">
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Money Report">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF & AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --surface-color: #ffffff;
-            --border-color: #e2e8f0;
-            --border-hover: #cbd5e1;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-card: #334155;
+            --border-color: #334155;
+            --border-hover: #475569;
             
-            --brand-primary: #2563eb;
-            --brand-light: #eff6ff;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
             
-            --accent-green: #16a34a;
-            --bg-green: #f0fdf4;
-            --accent-red: #dc2626;
-            --bg-red: #fef2f2;
-            --accent-purple: #7c3aed;
-            --bg-purple: #f5f3ff;
+            --brand-primary: #6366f1;
+            --brand-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --brand-light: rgba(99, 102, 241, 0.15);
             
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --accent-green: #10b981;
+            --bg-green: rgba(16, 185, 129, 0.12);
+            --accent-red: #ef4444;
+            --bg-red: rgba(239, 68, 68, 0.12);
+            --accent-purple: #a855f7;
+            --bg-purple: rgba(168, 85, 247, 0.12);
+            
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 1.5rem 1rem 5rem 1rem;
+            padding: 1.5rem 1rem 6rem 1rem;
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1140px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         header {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            padding-bottom: 1.25rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
         }
 
-        header h1 {
-            font-size: 1.5rem;
+        .brand-title {
+            font-size: 1.75rem;
             font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
         }
 
         header p {
             color: var(--text-secondary);
             font-size: 0.875rem;
-            margin-top: 0.25rem;
+            margin-top: 0.2rem;
         }
 
         .header-tag {
-            background: var(--brand-light);
-            color: var(--brand-primary);
+            background: var(--surface-color);
+            color: var(--text-primary);
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.35rem 0.65rem;
+            padding: 0.4rem 0.85rem;
             border-radius: 9999px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
+            border: 1px solid var(--border-hover);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
         }
 
         .status-dot {
@@ -96,9 +113,9 @@
             height: 8px;
             background-color: var(--accent-green);
             border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
         }
 
-        /* Views Control */
         .tab-view {
             display: none;
         }
@@ -107,31 +124,37 @@
             display: block;
         }
 
-        /* Dashboard Summary Grid */
+        /* Dashboard Metric Cards */
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
         }
 
         .card {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1.25rem;
             box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .card-title {
-            font-size: 0.775rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             font-weight: 600;
             text-transform: uppercase;
@@ -139,36 +162,36 @@
         }
 
         .card-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
         }
 
         .card-value {
-            font-size: 1.5rem;
+            font-size: 1.65rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
 
-        .icon-blue { background: var(--brand-light); color: var(--brand-primary); }
+        .icon-blue { background: var(--brand-light); color: #818cf8; }
         .icon-green { background: var(--bg-green); color: var(--accent-green); }
         .icon-purple { background: var(--bg-purple); color: var(--accent-purple); }
         .icon-red { background: var(--bg-red); color: var(--accent-red); }
 
-        .val-blue { color: var(--brand-primary); }
+        .val-blue { color: #818cf8; }
         .val-green { color: var(--accent-green); }
         .val-purple { color: var(--accent-purple); }
         .val-red { color: var(--accent-red); }
 
-        /* Main Workspace Grid */
+        /* Main Workspace */
         .main-grid {
             display: grid;
-            grid-template-columns: 360px 1fr;
+            grid-template-columns: 380px 1fr;
             gap: 1.5rem;
         }
 
@@ -181,83 +204,124 @@
         .panel {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
+            border-radius: 16px;
+            padding: 1.5rem;
             box-shadow: var(--shadow-sm);
         }
 
-        .panel-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
+        .panel-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
-        /* Form Inputs */
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Forms & Inputs */
         form {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.1rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.4rem;
         }
 
         label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
         input, select {
-            background: #ffffff;
+            background: var(--bg-color);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
             color: var(--text-primary);
             font-size: 0.9rem;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
         }
 
         input:focus, select:focus {
             border-color: var(--brand-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px var(--brand-light);
+        }
+
+        .time-picker-wrapper {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .time-picker-wrapper select {
+            flex: 1;
         }
 
         .shopping-box {
             display: none;
             flex-direction: column;
             gap: 1rem;
-            background: #f8fafc;
-            padding: 0.85rem;
-            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1rem;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
         button.btn-submit {
-            background: var(--brand-primary);
+            background: var(--brand-gradient);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 0.9rem;
+            border-radius: 10px;
+            padding: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: var(--shadow-glow);
+            transition: opacity 0.2s, transform 0.1s;
         }
 
         button.btn-submit:hover {
-            background-color: #1d4ed8;
+            opacity: 0.95;
         }
 
         button.btn-submit:active {
-            transform: scale(0.99);
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--surface-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.55rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--brand-primary);
+            background: var(--brand-light);
+            color: #818cf8;
         }
 
         /* Analytics Chart Container */
@@ -267,7 +331,7 @@
             width: 100%;
         }
 
-        /* Transactions Table */
+        /* Table & Responsive Cards */
         .table-container {
             overflow-x: auto;
         }
@@ -280,18 +344,18 @@
         }
 
         th {
-            background: #f8fafc;
+            background: rgba(15, 23, 42, 0.5);
             color: var(--text-secondary);
             font-weight: 600;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 0.65rem 0.85rem;
+            padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         td {
-            padding: 0.85rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-primary);
             vertical-align: middle;
@@ -302,29 +366,62 @@
         }
 
         tbody tr:hover {
-            background: #f8fafc;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        @media (max-width: 640px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                background: var(--surface-color);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                margin-bottom: 0.75rem;
+                padding: 1rem;
+                position: relative;
+            }
+
+            td {
+                padding: 0.4rem 0;
+                border-bottom: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .mobile-action {
+                position: absolute;
+                top: 0.85rem;
+                right: 0.85rem;
+            }
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
-            padding: 0.2rem 0.5rem;
+            padding: 0.25rem 0.6rem;
             border-radius: 6px;
             font-size: 0.725rem;
             font-weight: 600;
         }
 
-        .badge-receive { background: var(--bg-green); color: var(--accent-green); border: 1px solid rgba(22, 163, 74, 0.2); }
-        .badge-spend { background: var(--bg-red); color: var(--accent-red); border: 1px solid rgba(220, 38, 38, 0.2); }
-        .badge-shopping { background: var(--bg-purple); color: var(--accent-purple); border: 1px solid rgba(124, 58, 237, 0.2); }
+        .badge-receive { background: var(--bg-green); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-spend { background: var(--bg-red); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-shopping { background: var(--bg-purple); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
 
         .btn-delete {
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-muted);
             border-radius: 6px;
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -335,29 +432,37 @@
         .btn-delete:hover {
             background: var(--bg-red);
             color: var(--accent-red);
-            border-color: rgba(220, 38, 38, 0.3);
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
         .empty-state {
             text-align: center;
-            padding: 2.5rem 1rem;
+            padding: 3rem 1rem;
             color: var(--text-muted);
             font-size: 0.875rem;
         }
 
-        /* Bottom Navigation Bar */
+        /* Export Controls Group */
+        .export-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--surface-color);
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 0.5rem 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.65rem 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
             z-index: 1000;
         }
 
@@ -365,7 +470,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem;
             background: none;
             border: none;
             color: var(--text-secondary);
@@ -373,13 +478,12 @@
             font-weight: 500;
             cursor: pointer;
             width: 33%;
-            padding: 0.25rem 0;
             transition: color 0.2s;
         }
 
         .nav-item svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
@@ -388,7 +492,7 @@
         }
 
         .nav-item.active {
-            color: var(--brand-primary);
+            color: #818cf8;
             font-weight: 600;
         }
     </style>
@@ -398,8 +502,8 @@
 <div class="container">
     <header>
         <div>
-            <h1>Money Report</h1>
-            <p>Track pocket money, shopping receipts, and analytics</p>
+            <h1 class="brand-title">Money Report</h1>
+            <p>Smart income, expense & shopping ledger</p>
         </div>
         <div class="header-tag">
             <span class="status-dot"></span> OPFS Active
@@ -408,18 +512,18 @@
 
     <!-- Tab 1: Home View -->
     <div id="view-home" class="tab-view active">
-        <!-- Dashboard Summary Cards -->
+        <!-- Dashboard Metric Cards -->
         <div class="dashboard">
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">My Current Cash</span>
+                    <span class="card-title">Current Balance</span>
                     <span class="card-icon icon-blue">₹</span>
                 </div>
                 <div class="card-value val-blue" id="dash-balance">₹0.00</div>
             </div>
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Received From Others</span>
+                    <span class="card-title">Total Money In</span>
                     <span class="card-icon icon-green">↓</span>
                 </div>
                 <div class="card-value val-green" id="dash-received">₹0.00</div>
@@ -433,7 +537,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Shopping Balance Owed</span>
+                    <span class="card-title">Shopping Due Back</span>
                     <span class="card-icon icon-red">↩</span>
                 </div>
                 <div class="card-value val-red" id="dash-owed">₹0.00</div>
@@ -442,12 +546,19 @@
 
         <!-- Main Workspace -->
         <div class="main-grid">
-            <!-- Entry Form -->
+            <!-- Entry Panel -->
             <div class="panel">
-                <h2 class="panel-title">New Entry</h2>
+                <div class="panel-header-actions">
+                    <h2 class="panel-title">New Entry</h2>
+                </div>
                 <form id="tx-form">
                     <div class="form-group">
-                        <label for="type">Transaction Category</label>
+                        <label for="tx-date">Date</label>
+                        <input type="date" id="tx-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Transaction Type</label>
                         <select id="type" onchange="toggleShoppingFields()">
                             <option value="receive">Received Allowance / Cash</option>
                             <option value="spend">Personal Expenditure</option>
@@ -457,7 +568,7 @@
 
                     <div class="form-group">
                         <label for="description">Description / Note</label>
-                        <input type="text" id="description" placeholder="e.g., Grocery run, Book purchase" required>
+                        <input type="text" id="description" placeholder="e.g., Groceries, Books" required>
                     </div>
 
                     <!-- Regular Amount -->
@@ -469,7 +580,7 @@
                     <!-- Shopping Breakdown Fields -->
                     <div class="shopping-box" id="group-shopping-fields">
                         <div class="form-group">
-                            <label for="shop-received">Money Handed Over by Mother (₹)</label>
+                            <label for="shop-received">Money Handed Over (₹)</label>
                             <input type="number" id="shop-received" placeholder="e.g. 1000" min="0" step="any">
                         </div>
                         <div class="form-group">
@@ -480,11 +591,40 @@
 
                     <button type="submit" class="btn-submit">Record Transaction</button>
                 </form>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- Notification Config (12-Hour Format) -->
+                <div class="form-group">
+                    <label>Daily Reminder Time</label>
+                    <div class="time-picker-wrapper">
+                        <select id="rem-hour">
+                            <!-- 1 to 12 -->
+                        </select>
+                        <select id="rem-minute">
+                            <!-- 00 to 55 -->
+                        </select>
+                        <select id="rem-ampm">
+                            <option value="AM">AM</option>
+                            <option value="PM" selected>PM</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-secondary" style="margin-top: 0.5rem; justify-content: center;" onclick="saveReminderSetting()">Set Reminder</button>
+                </div>
             </div>
 
-            <!-- Ledger History -->
+            <!-- Transaction Ledger -->
             <div class="panel table-container">
-                <h2 class="panel-title">Transaction History</h2>
+                <div class="panel-header-actions">
+                    <h2 class="panel-title">Transaction History</h2>
+                    <div class="export-controls">
+                        <input type="month" id="pdf-month-select" style="padding: 0.4rem 0.6rem; font-size: 0.8rem;">
+                        <button class="btn-secondary" onclick="exportMonthlyPDF()">
+                            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            PDF
+                        </button>
+                    </div>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -500,7 +640,7 @@
                     </tbody>
                 </table>
                 <div id="empty-message" class="empty-state" style="display: none;">
-                    No transactions recorded yet. Add your first entry using the panel.
+                    No transactions recorded for this period.
                 </div>
             </div>
         </div>
@@ -509,7 +649,7 @@
     <!-- Tab 2: Cash Flow Analytics -->
     <div id="view-flow" class="tab-view">
         <div class="panel">
-            <h2 class="panel-title">Cash Flow Distribution</h2>
+            <h2 class="panel-title" style="margin-bottom: 1rem;">Cash Flow Distribution</h2>
             <div class="chart-box">
                 <canvas id="flowChart"></canvas>
             </div>
@@ -519,7 +659,7 @@
     <!-- Tab 3: Shopping Analytics -->
     <div id="view-shopping" class="tab-view">
         <div class="panel">
-            <h2 class="panel-title">Shopping: Given vs Spent</h2>
+            <h2 class="panel-title" style="margin-bottom: 1rem;">Shopping: Given vs Spent</h2>
             <div class="chart-box">
                 <canvas id="shoppingChart"></canvas>
             </div>
@@ -548,6 +688,7 @@
     let transactions = [];
     let flowChartInstance = null;
     let shoppingChartInstance = null;
+    let reminderTimeout = null;
 
     // --- Tab Navigation Switcher ---
     function switchTab(viewId, navBtn) {
@@ -584,7 +725,7 @@
         }
     }
 
-    // --- UI & Chart Logic ---
+    // --- UI Controls ---
     function toggleShoppingFields() {
         const type = document.getElementById('type').value;
         const stdAmount = document.getElementById('group-standard-amount');
@@ -599,17 +740,56 @@
         }
     }
 
+    function setDefaultDates() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        document.getElementById('tx-date').value = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('pdf-month-select').value = `${yyyy}-${mm}`;
+    }
+
+    function populateTimePickerOptions() {
+        const hourSelect = document.getElementById('rem-hour');
+        const minSelect = document.getElementById('rem-minute');
+
+        hourSelect.innerHTML = '';
+        minSelect.innerHTML = '';
+
+        for (let i = 1; i <= 12; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = String(i).padStart(2, '0');
+            if (i === 8) opt.selected = true;
+            hourSelect.appendChild(opt);
+        }
+
+        for (let i = 0; i < 60; i += 5) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = String(i).padStart(2, '0');
+            minSelect.appendChild(opt);
+        }
+    }
+
+    // --- Form Handling ---
     document.getElementById('tx-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const type = document.getElementById('type').value;
         const description = document.getElementById('description').value;
+        const rawDate = document.getElementById('tx-date').value;
+        
+        const dateObj = new Date(rawDate);
+        const formattedDate = dateObj.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
 
         let entry = {
             id: Date.now(),
             type,
             description,
-            date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+            rawDate,
+            date: formattedDate
         };
 
         if (type === 'shopping') {
@@ -629,6 +809,7 @@
         renderUI();
 
         this.reset();
+        setDefaultDates();
         toggleShoppingFields();
     });
 
@@ -638,6 +819,7 @@
         renderUI();
     }
 
+    // --- Analytics Charts ---
     function initCharts() {
         const ctxFlow = document.getElementById('flowChart').getContext('2d');
         const ctxShop = document.getElementById('shoppingChart').getContext('2d');
@@ -645,10 +827,10 @@
         flowChartInstance = new Chart(ctxFlow, {
             type: 'doughnut',
             data: {
-                labels: ['Current Cash', 'Personal Spent', 'Shopping Balance Owed'],
+                labels: ['Current Balance', 'Personal Spent', 'Shopping Due Back'],
                 datasets: [{
                     data: [0, 0, 0],
-                    backgroundColor: ['#2563eb', '#7c3aed', '#dc2626'],
+                    backgroundColor: ['#6366f1', '#a855f7', '#ef4444'],
                     borderWidth: 0
                 }]
             },
@@ -656,7 +838,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom', labels: { color: '#94a3b8' } }
                 }
             }
         });
@@ -668,8 +850,8 @@
                 datasets: [{
                     label: 'Amount (₹)',
                     data: [0, 0, 0],
-                    backgroundColor: ['#16a34a', '#7c3aed', '#dc2626'],
-                    borderRadius: 6
+                    backgroundColor: ['#10b981', '#a855f7', '#ef4444'],
+                    borderRadius: 8
                 }]
             },
             options: {
@@ -679,7 +861,8 @@
                     legend: { display: false }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
                 }
             }
         });
@@ -699,6 +882,7 @@
         }
     }
 
+    // --- Render Dashboard & Ledger ---
     function renderUI() {
         const tbody = document.getElementById('tx-table-body');
         const emptyMsg = document.getElementById('empty-message');
@@ -730,7 +914,7 @@
                     </td>
                     <td style="font-weight: 600;" class="val-green">+₹${tx.amount.toFixed(2)}</td>
                     <td style="color: var(--text-muted);">—</td>
-                    <td><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
+                    <td class="mobile-action"><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
                 `;
             } else if (tx.type === 'spend') {
                 totalPersonalSpent += tx.amount;
@@ -742,7 +926,7 @@
                     </td>
                     <td style="font-weight: 600;" class="val-red">-₹${tx.amount.toFixed(2)}</td>
                     <td style="color: var(--text-muted);">—</td>
-                    <td><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
+                    <td class="mobile-action"><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
                 `;
             } else if (tx.type === 'shopping') {
                 totalOwedBack += tx.balanceToReturn;
@@ -760,7 +944,7 @@
                         <div style="font-size: 0.775rem; color: var(--text-secondary);">Bill: ₹${tx.spent.toFixed(2)}</div>
                     </td>
                     <td style="font-weight: 600;" class="val-red">₹${tx.balanceToReturn.toFixed(2)}</td>
-                    <td><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
+                    <td class="mobile-action"><button class="btn-delete" onclick="deleteEntry(${tx.id})" title="Delete">✕</button></td>
                 `;
             }
             tbody.appendChild(tr);
@@ -776,12 +960,180 @@
         updateCharts(totalReceived, totalPersonalSpent, totalOwedBack, totalShopGiven, totalShopSpent);
     }
 
-    // --- Application Initialization ---
+    // --- PDF Export Logic with Month Filtering & Totals Summary ---
+    function exportMonthlyPDF() {
+        const selectedMonth = document.getElementById('pdf-month-select').value;
+        if (!selectedMonth) {
+            alert('Please select a month to generate the report.');
+            return;
+        }
+
+        const filteredTx = transactions.filter(tx => tx.rawDate && tx.rawDate.startsWith(selectedMonth));
+
+        if (filteredTx.length === 0) {
+            alert(`No transactions found for ${selectedMonth}.`);
+            return;
+        }
+
+        let monthReceived = 0;
+        let monthSpent = 0;
+        let monthOwedBack = 0;
+
+        const tableData = filteredTx.map(tx => {
+            let impact = '';
+            let change = '—';
+
+            if (tx.type === 'receive') {
+                monthReceived += tx.amount;
+                impact = `+Rs. ${tx.amount.toFixed(2)}`;
+            } else if (tx.type === 'spend') {
+                monthSpent += tx.amount;
+                impact = `-Rs. ${tx.amount.toFixed(2)}`;
+            } else if (tx.type === 'shopping') {
+                monthOwedBack += tx.balanceToReturn;
+                impact = `Given: Rs. ${tx.given.toFixed(2)} | Bill: Rs. ${tx.spent.toFixed(2)}`;
+                change = `Rs. ${tx.balanceToReturn.toFixed(2)}`;
+            }
+
+            return [tx.date, tx.type.toUpperCase(), tx.description, impact, change];
+        });
+
+        const monthBalance = monthReceived - monthSpent;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Header Styling
+        doc.setFillColor(30, 41, 59);
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        doc.setFontSize(20);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Money Report - Monthly Statement', 14, 22);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Statement Period: ${selectedMonth}  |  Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 32);
+
+        // Financial Summary Box
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(14, 48, 182, 28, 3, 3, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(14, 48, 182, 28, 3, 3, 'D');
+
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.text('TOTAL MONEY IN', 20, 58);
+        doc.text('TOTAL SPENT', 72, 58);
+        doc.text('NET BALANCE', 120, 58);
+        doc.text('SHOPPING DUE', 162, 58);
+
+        doc.setFontSize(11);
+        doc.setTextColor(16, 185, 129);
+        doc.text(`Rs. ${monthReceived.toFixed(2)}`, 20, 68);
+
+        doc.setTextColor(168, 85, 247);
+        doc.text(`Rs. ${monthSpent.toFixed(2)}`, 72, 68);
+
+        doc.setTextColor(99, 102, 241);
+        doc.text(`Rs. ${monthBalance.toFixed(2)}`, 120, 68);
+
+        doc.setTextColor(239, 68, 68);
+        doc.text(`Rs. ${monthOwedBack.toFixed(2)}`, 162, 68);
+
+        // Transactions Table
+        doc.autoTable({
+            startY: 84,
+            head: [['Date', 'Category', 'Description', 'Financial Impact', 'Change Due']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            styles: { fontSize: 9, cellPadding: 4 }
+        });
+
+        doc.save(`Money_Report_${selectedMonth}.pdf`);
+    }
+
+    // --- 12-Hour Format Notification Handlers ---
+    function saveReminderSetting() {
+        const hour = parseInt(document.getElementById('rem-hour').value, 10);
+        const minute = parseInt(document.getElementById('rem-minute').value, 10);
+        const ampm = document.getElementById('rem-ampm').value;
+
+        const config = { hour, minute, ampm };
+        localStorage.setItem('reminder_config_12h', JSON.stringify(config));
+        
+        setupNotification(config);
+        alert(`Daily reminder set for ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${ampm}`);
+    }
+
+    function setupNotification(config) {
+        if (!("Notification" in window)) return;
+
+        if (Notification.permission === "default") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    scheduleDailyTimer(config);
+                }
+            });
+        } else if (Notification.permission === "granted") {
+            scheduleDailyTimer(config);
+        }
+    }
+
+    function scheduleDailyTimer(config) {
+        if (reminderTimeout) clearTimeout(reminderTimeout);
+
+        let hours24 = config.hour;
+        if (config.ampm === 'PM' && hours24 < 12) hours24 += 12;
+        if (config.ampm === 'AM' && hours24 === 12) hours24 = 0;
+
+        const now = new Date();
+        const target = new Date();
+
+        target.setHours(hours24, config.minute, 0, 0);
+
+        if (now >= target) {
+            target.setDate(target.getDate() + 1);
+        }
+
+        const delay = target.getTime() - now.getTime();
+
+        reminderTimeout = setTimeout(() => {
+            if (Notification.permission === "granted") {
+                new Notification("Money Report Reminder", {
+                    body: "Time to log your daily expenses and income!",
+                    icon: "icon-192.png"
+                });
+            }
+            scheduleDailyTimer(config);
+        }, delay);
+    }
+
+    function initReminder() {
+        populateTimePickerOptions();
+
+        const saved = localStorage.getItem('reminder_config_12h');
+        let config = saved ? JSON.parse(saved) : { hour: 8, minute: 0, ampm: 'PM' };
+
+        document.getElementById('rem-hour').value = config.hour;
+        document.getElementById('rem-minute').value = config.minute;
+        document.getElementById('rem-ampm').value = config.ampm;
+
+        if (Notification.permission === "granted") {
+            scheduleDailyTimer(config);
+        }
+    }
+
+    // --- App Init ---
     async function init() {
+        setDefaultDates();
         toggleShoppingFields();
         initCharts();
         transactions = await readFromOPFS();
         renderUI();
+        initReminder();
     }
 
     init();
