@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal & Family Ledger</title>
+    <title>Money Report</title>
   <!-- PWA Manifest & Theme Color -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Ledger">
+<meta name="apple-mobile-web-app-title" content="Money Report">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -398,7 +398,7 @@
 <div class="container">
     <header>
         <div>
-            <h1>Personal & Family Ledger</h1>
+            <h1>Money Report</h1>
             <p>Track pocket money, shopping receipts, and analytics</p>
         </div>
         <div class="header-tag">
@@ -419,7 +419,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Received From Father</span>
+                    <span class="card-title">Received From Others</span>
                     <span class="card-icon icon-green">↓</span>
                 </div>
                 <div class="card-value val-green" id="dash-received">₹0.00</div>
@@ -469,7 +469,7 @@
                     <!-- Shopping Breakdown Fields -->
                     <div class="shopping-box" id="group-shopping-fields">
                         <div class="form-group">
-                            <label for="shop-received">Money Handed Over by Father (₹)</label>
+                            <label for="shop-received">Money Handed Over by Mother (₹)</label>
                             <input type="number" id="shop-received" placeholder="e.g. 1000" min="0" step="any">
                         </div>
                         <div class="form-group">
