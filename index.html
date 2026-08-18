@@ -1057,19 +1057,14 @@
 
     // --- 12-Hour Format Notification Handlers (Fixed) ---
 async function saveReminderSetting() {
-    if (!("Notification" in window)) {
-        alert("This browser does not support web notifications.");
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        alert("Web notifications or Service Workers are not supported on this browser.");
         return;
     }
 
-    // Explicit user-driven permission request
-    let permission = Notification.permission;
+    let permission = await Notification.requestPermission();
     if (permission !== "granted") {
-        permission = await Notification.requestPermission();
-    }
-
-    if (permission !== "granted") {
-        alert("Notification permission was denied. Please enable notifications in site settings.");
+        alert("Notification permission denied.");
         return;
     }
 
@@ -1077,13 +1072,21 @@ async function saveReminderSetting() {
     const minute = parseInt(document.getElementById('rem-minute').value, 10);
     const ampm = document.getElementById('rem-ampm').value;
 
-    const config = { hour, minute, ampm };
-    localStorage.setItem('reminder_config_12h', JSON.stringify(config));
-    
-    scheduleDailyTimer(config);
+    const reg = await navigator.serviceWorker.ready;
 
-    // Instant confirmation notification so you know it works
-    triggerNotification("Money Report Reminder Set", `Daily reminder scheduled for ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${ampm}`);
+    // Send the reminder time to your backend database (Node.js/Firebase/Supabase)
+    const reminderData = { hour, minute, ampm, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
+    
+    await fetch('/api/schedule-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reminderData)
+    });
+
+    // Instant confirmation notification
+    reg.showNotification("Money Report", {
+        body: `Daily reminder configured for ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${ampm}`
+    });
 }
 
 function triggerNotification(title, bodyText) {
