@@ -1055,88 +1055,108 @@
         doc.save(`Money_Report_${selectedMonth}.pdf`);
     }
 
-    // --- 12-Hour Format Notification Handlers ---
-    function saveReminderSetting() {
-        const hour = parseInt(document.getElementById('rem-hour').value, 10);
-        const minute = parseInt(document.getElementById('rem-minute').value, 10);
-        const ampm = document.getElementById('rem-ampm').value;
-
-        const config = { hour, minute, ampm };
-        localStorage.setItem('reminder_config_12h', JSON.stringify(config));
-        
-        setupNotification(config);
-        alert(`Daily reminder set for ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${ampm}`);
+    // --- 12-Hour Format Notification Handlers (Fixed) ---
+async function saveReminderSetting() {
+    if (!("Notification" in window)) {
+        alert("This browser does not support web notifications.");
+        return;
     }
 
-    function setupNotification(config) {
-        if (!("Notification" in window)) return;
-
-        if (Notification.permission === "default") {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    scheduleDailyTimer(config);
-                }
-            });
-        } else if (Notification.permission === "granted") {
-            scheduleDailyTimer(config);
-        }
+    // Explicit user-driven permission request
+    let permission = Notification.permission;
+    if (permission !== "granted") {
+        permission = await Notification.requestPermission();
     }
 
-    function scheduleDailyTimer(config) {
-        if (reminderTimeout) clearTimeout(reminderTimeout);
-
-        let hours24 = config.hour;
-        if (config.ampm === 'PM' && hours24 < 12) hours24 += 12;
-        if (config.ampm === 'AM' && hours24 === 12) hours24 = 0;
-
-        const now = new Date();
-        const target = new Date();
-
-        target.setHours(hours24, config.minute, 0, 0);
-
-        if (now >= target) {
-            target.setDate(target.getDate() + 1);
-        }
-
-        const delay = target.getTime() - now.getTime();
-
-        reminderTimeout = setTimeout(() => {
-            if (Notification.permission === "granted") {
-                new Notification("Money Report Reminder", {
-                    body: "Time to log your daily expenses and income!",
-                    icon: "icon-192.png"
-                });
-            }
-            scheduleDailyTimer(config);
-        }, delay);
+    if (permission !== "granted") {
+        alert("Notification permission was denied. Please enable notifications in site settings.");
+        return;
     }
 
-    function initReminder() {
-        populateTimePickerOptions();
+    const hour = parseInt(document.getElementById('rem-hour').value, 10);
+    const minute = parseInt(document.getElementById('rem-minute').value, 10);
+    const ampm = document.getElementById('rem-ampm').value;
 
-        const saved = localStorage.getItem('reminder_config_12h');
-        let config = saved ? JSON.parse(saved) : { hour: 8, minute: 0, ampm: 'PM' };
+    const config = { hour, minute, ampm };
+    localStorage.setItem('reminder_config_12h', JSON.stringify(config));
+    
+    scheduleDailyTimer(config);
 
-        document.getElementById('rem-hour').value = config.hour;
-        document.getElementById('rem-minute').value = config.minute;
-        document.getElementById('rem-ampm').value = config.ampm;
+    // Instant confirmation notification so you know it works
+    triggerNotification("Money Report Reminder Set", `Daily reminder scheduled for ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${ampm}`);
+}
 
+function triggerNotification(title, bodyText) {
+    const options = {
+        body: bodyText,
+        icon: "icon-192.png",
+        badge: "icon-192.png",
+        vibrate: [200, 100, 200]
+    };
+
+    // Prefer Service Worker registration for mobile compatibility
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, options);
+        });
+    } else {
+        new Notification(title, options);
+    }
+}
+
+function scheduleDailyTimer(config) {
+    if (reminderTimeout) clearTimeout(reminderTimeout);
+
+    let hours24 = config.hour;
+    if (config.ampm === 'PM' && hours24 < 12) hours24 += 12;
+    if (config.ampm === 'AM' && hours24 === 12) hours24 = 0;
+
+    const now = new Date();
+    const target = new Date();
+
+    target.setHours(hours24, config.minute, 0, 0);
+
+    // If target time already passed today, schedule for tomorrow
+    if (now.getTime() >= target.getTime()) {
+        target.setDate(target.getDate() + 1);
+    }
+
+    const delay = target.getTime() - now.getTime();
+
+    reminderTimeout = setTimeout(() => {
         if (Notification.permission === "granted") {
-            scheduleDailyTimer(config);
+            triggerNotification("Money Report Reminder", "Time to log your daily expenses and income!");
         }
-    }
+        scheduleDailyTimer(config); // Loop for next day
+    }, delay);
+}
 
-    // --- App Init ---
-    async function init() {
-        setDefaultDates();
-        toggleShoppingFields();
-        initCharts();
-        transactions = await readFromOPFS();
-        renderUI();
-        initReminder();
-    }
+function initReminder() {
+    populateTimePickerOptions();
 
-    init();
+    const saved = localStorage.getItem('reminder_config_12h');
+    let config = saved ? JSON.parse(saved) : { hour: 8, minute: 0, ampm: 'PM' };
+
+    document.getElementById('rem-hour').value = config.hour;
+    document.getElementById('rem-minute').value = config.minute;
+    document.getElementById('rem-ampm').value = config.ampm;
+
+    if (Notification.permission === "granted") {
+        scheduleDailyTimer(config);
+    }
+}
+
+// --- App Init ---
+async function init() {
+    setDefaultDates();
+    toggleShoppingFields();
+    initCharts();
+    transactions = await readFromOPFS();
+    renderUI();
+    initReminder();
+}
+
+init();
 </script>
 <script>
   if ('serviceWorker' in navigator) {
