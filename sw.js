@@ -31,7 +31,26 @@ self.addEventListener('activate', (event) => {
   );
   self.clients.claim();
 });
+// sw.js - Handles push events sent from server when app is closed
+self.addEventListener('push', (event) => {
+    let data = { title: 'Money Report Reminder', body: 'Time to log your daily expenses!' };
+    
+    if (event.data) {
+        data = event.data.json();
+    }
 
+    const options = {
+        body: data.body,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        vibrate: [200, 100, 200],
+        sound: 'default'
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
 // Fetch Event - Serve from Cache, fall back to Network
 self.addEventListener('fetch', (event) => {
   event.respondWith(
